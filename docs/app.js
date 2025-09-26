@@ -60,14 +60,13 @@ document.addEventListener("DOMContentLoaded", () => {
       pthreadWorker: null,
     };
     
-    // ⚠️ Truco anti-CORS de Module Worker:
-    // 1) Descargamos el código del worker desde el CDN
-    // 2) Creamos un Blob URL del script y lo usamos como mismo origen
-    const workerSrc = await fetch(bundle.mainWorker).then(r => r.text());
-    const workerBlobUrl = URL.createObjectURL(new Blob([workerSrc], { type: "text/javascript" }));
+    // Descargamos el código del worker y lo levantamos como **classic worker** desde un Blob (mismo origen)
+    const workerSrc    = await fetch(bundle.mainWorker).then(r => r.text());
+    const workerBlob   = new Blob([workerSrc], { type: "text/javascript" });
+    const workerBlobUrl= URL.createObjectURL(workerBlob);
     
-    // Ahora sí: Worker del “mismo origen” (pero ejecuta el código del CDN)
-    const worker = new Worker(workerBlobUrl, { type: "module" });
+    // ⬅️ classic worker (sin type:"module")
+    const worker = new Worker(workerBlobUrl);
     
     const logger = new duckdb.ConsoleLogger();
     const db     = new duckdb.AsyncDuckDB(logger, worker);
@@ -77,7 +76,7 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log("🟢 DuckDB OK");
     
     const conn = await db.connect();
-    await conn.query("INSTALL httpfs; LOAD httpfs; SET threads=4;");
+    await conn.query("INSTALL httpfs; LOAD httpfs; SET threads=4;")
 
     // ---------- Helpers ----------
     async function loadRegion(regionSlug){
