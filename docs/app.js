@@ -53,7 +53,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // ---------- DuckDB-Wasm bootstrap ----------
     const bundles = duckdb.getJsDelivrBundles();
-    const bundle = duckdb.selectBundle(bundles, { preferMvp: true });
+    cconst bundle  = await duckdb.selectBundle(bundles, { preferMvp: true });
     const worker  = new Worker(bundle.worker, { type: "module" });
     worker.addEventListener("error", (e) => {
       console.error("❌ Worker error:", e);
@@ -64,7 +64,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     
     const logger = new duckdb.ConsoleLogger();
-    const db = new duckdb.AsyncDuckDB(logger, worker);
+    const db     = new duckdb.AsyncDuckDB(logger, worker);
     
     try {
       console.log("🟡 Instanciando DuckDB…", bundle);
@@ -72,23 +72,12 @@ document.addEventListener("DOMContentLoaded", () => {
       console.log("🟢 DuckDB OK");
     } catch (err) {
       console.error("❌ Error en instantiate:", err);
-      alert("DuckDB no pudo inicializarse. Revisa la consola (F12) para detalles.");
+      alert("DuckDB no pudo inicializarse. Revisa la consola (F12).");
       throw err;
     }
     
-    let conn;
-    try {
-      conn = await db.connect();
-      await conn.query("INSTALL httpfs; LOAD httpfs; SET threads=4;");
-      // prueba mínima
-      const ping = await conn.query("SELECT 1 AS ok;");
-      console.log("Ping DB:", ping.toArray());
-    } catch (err) {
-      console.error("❌ Error creando conexión / cargando httpfs:", err);
-      alert("Fallo al abrir la conexión o cargar HTTPFS. Revisa consola.");
-      throw err;
-    }
-
+    const conn = await db.connect();
+    await conn.query("INSTALL httpfs; LOAD httpfs; SET threads=4;");
     // ---------- Helpers ----------
     async function loadRegion(regionSlug){
       const path = `data/region=${regionSlug}/part-*.parquet`;
