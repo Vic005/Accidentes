@@ -51,9 +51,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let page = 1;
     const LIMIT = 100;
 
-    // ---------- DuckDB-Wasm bootstrap ----------
-    import * as duckdb from "https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm@1.30.0/+esm?v=20250926";
-    
+    // ---------- DuckDB-Wasm bootstrap ----------    
     // 1) Catálogo de bundles del CDN
     const allBundles = duckdb.getJsDelivrBundles(); // array de bundles
     
