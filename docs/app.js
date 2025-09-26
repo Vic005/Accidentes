@@ -1,3 +1,11 @@
+function loadRegion(regionSlug){
+  const path = `data/region=${regionSlug}/part-*.parquet`;
+  return conn.query(`CREATE OR REPLACE VIEW acc AS SELECT * FROM read_parquet('${path}');`);
+}
+// y al llamarla:
+loadRegion(regionSel.value).then(runQuery).catch(console.error);
+
+
 // --- Configuración de regiones (slug -> etiqueta). Puedes editar/ordenar a gusto.
 const REGIONES = [
   ["region-metropolitana-de-santiago", "Región Metropolitana de Santiago"],
@@ -45,13 +53,6 @@ await db.instantiate(bundle.mainModule, bundle.pthreadWorker);
 
 const conn = await db.connect();
 await conn.query("INSTALL httpfs; LOAD httpfs; SET threads=4;");
-
-// --- carga de región
-async function loadRegion(regionSlug){
-  const path = `data/region=${regionSlug}/part-*.parquet`;
-  // Creamos/reemplazamos la vista 'acc' para la región seleccionada
-  await conn.query(`CREATE OR REPLACE VIEW acc AS SELECT * FROM read_parquet('${path}');`);
-}
 
 // --- construcción de filtros parametrizados
 function buildFilters(){
