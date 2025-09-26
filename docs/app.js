@@ -38,7 +38,7 @@ const bundles = duckdb.getJsDelivrBundles();     // catálogos de URLs del CDN
 const bundle  = duckdb.selectBundle(bundles);    // elige mvp/eh según soporte
 
 // Arranque estándar
-const worker = new Worker(bundle.worker);
+const worker = new Worker(bundle.worker, { type: 'module' });
 const logger = new duckdb.ConsoleLogger();
 const db     = new duckdb.AsyncDuckDB(logger, worker);
 await db.instantiate(bundle.mainModule, bundle.pthreadWorker);
