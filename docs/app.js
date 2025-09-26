@@ -33,19 +33,14 @@ let page = 1;
 const LIMIT = 100;
 
 // --- DuckDB-Wasm (desde CDN)
-import * as duckdb from 'https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm@1.28.0/dist/duckdb-wasm.js';
-import duckdb_wasm     from 'https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm@1.28.0/dist/duckdb.wasm';
-import duckdb_wasm_eh  from 'https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm@1.28.0/dist/duckdb-eh.wasm';
-import duckdb_worker   from 'https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm@1.28.0/dist/duckdb-browser-eh.worker.js';
+import * as duckdb from 'https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm@1.28.0/dist/duckdb-esm.js';
+const bundles = duckdb.getJsDelivrBundles();     // catálogos de URLs del CDN
+const bundle  = duckdb.selectBundle(bundles);    // elige mvp/eh según soporte
 
-const bundles = {
-  mvp: { mainModule: duckdb_wasm,    worker: duckdb_worker },
-  eh:  { mainModule: duckdb_wasm_eh, worker: duckdb_worker },
-};
-const bundle = duckdb.selectBundle(bundles);
+// Arranque estándar
 const worker = new Worker(bundle.worker);
 const logger = new duckdb.ConsoleLogger();
-const db = new duckdb.AsyncDuckDB(logger, worker);
+const db     = new duckdb.AsyncDuckDB(logger, worker);
 await db.instantiate(bundle.mainModule, bundle.pthreadWorker);
 
 const conn = await db.connect();
