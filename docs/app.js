@@ -53,15 +53,31 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // ---------- DuckDB-Wasm bootstrap ----------
     const bundles = duckdb.getJsDelivrBundles();
-    const bundle  = duckdb.selectBundle(bundles);
+    cconst bundle  = await duckdb.selectBundle(bundles, { preferMvp: true });
     const worker  = new Worker(bundle.worker, { type: "module" });
-    const logger  = new duckdb.ConsoleLogger();
-    const db      = new duckdb.AsyncDuckDB(logger, worker);
-    await db.instantiate(bundle.mainModule, bundle.pthreadWorker);
-
+    worker.addEventListener("error", (e) => {
+      console.error("❌ Worker error:", e);
+      console.error("Worker URL:", bundle.worker);
+    });
+    worker.addEventListener("messageerror", (e) => {
+      console.error("❌ Worker messageerror:", e);
+    });
+    
+    const logger = new duckdb.ConsoleLogger();
+    const db     = new duckdb.AsyncDuckDB(logger, worker);
+    
+    try {
+      console.log("🟡 Instanciando DuckDB…", bundle);
+      await db.instantiate(bundle.mainModule, bundle.pthreadWorker);
+      console.log("🟢 DuckDB OK");
+    } catch (err) {
+      console.error("❌ Error en instantiate:", err);
+      alert("DuckDB no pudo inicializarse. Revisa la consola (F12).");
+      throw err;
+    }
+    
     const conn = await db.connect();
     await conn.query("INSTALL httpfs; LOAD httpfs; SET threads=4;");
-
     // ---------- Helpers ----------
     async function loadRegion(regionSlug){
       const path = `data/region=${regionSlug}/part-*.parquet`;
