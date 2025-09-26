@@ -41,7 +41,7 @@ let page = 1;
 const LIMIT = 100;
 
 // --- DuckDB-Wasm (desde CDN)
-import * as duckdb from 'https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm@1.28.0/dist/duckdb-esm.js';
+import * as duckdb from "https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm@1.30.0/+esm";
 const bundles = duckdb.getJsDelivrBundles();     // catálogos de URLs del CDN
 const bundle  = duckdb.selectBundle(bundles);    // elige mvp/eh según soporte
 
