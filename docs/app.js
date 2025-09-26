@@ -53,37 +53,30 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // ---------- DuckDB-Wasm bootstrap ----------    
     // 1) Catálogo de bundles del CDN
-    const allBundles = duckdb.getJsDelivrBundles(); // array de bundles
+    const DUCKDB_BASE = "https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm@1.30.0/dist/";
+    const bundle = {
+      // Usar SIEMPRE MVP (no requiere cross-origin isolation)
+      mainModule:   DUCKDB_BASE + "duckdb-mvp.wasm",
+      mainWorker:   DUCKDB_BASE + "duckdb-browser-mvp.worker.js",
+      pthreadWorker: null, // MVP no usa pthreads
+    };
     
-    // 2) Fuerza MVP (no requiere cross-origin isolation)
-    //    Buscamos el que termine en duckdb-mvp.wasm
-    const mvpBundle =
-      allBundles.find(b => /duckdb-mvp\.wasm$/.test(b.mainModule)) || allBundles[0];
-    
-    // 3) selectBundle es ASÍNCRONA; pásale el bundle MVP que queremos
-    const bundle = await duckdb.selectBundle([mvpBundle]);
-    
-    // 4) OJO: usar bundle.mainWorker (no bundle.worker)
+    // El worker **debe** ser tipo módulo
     const worker = new Worker(bundle.mainWorker, { type: "module" });
-    
-    // (logs por si acaso)
     worker.addEventListener("error", e => {
       console.error("❌ Worker error:", e);
-      console.error("Worker mainWorker URL:", bundle.mainWorker);
+      console.error("Worker URL:", bundle.mainWorker);
     });
     
-    // 5) Instancia
     const logger = new duckdb.ConsoleLogger();
     const db     = new duckdb.AsyncDuckDB(logger, worker);
     
-    console.log("🟡 Instanciando DuckDB…", bundle);
+    console.log("🟡 Instanciando DuckDB (MVP)…", bundle);
     await db.instantiate(bundle.mainModule, bundle.pthreadWorker);
     console.log("🟢 DuckDB OK");
     
-    // 6) Conexión + HTTPFS
     const conn = await db.connect();
     await conn.query("INSTALL httpfs; LOAD httpfs; SET threads=4;");
-    
     // (ping opcional)
     const ping = await conn.query("SELECT 1 AS ok;");
     console.log("Ping DB:", ping.toArray());
