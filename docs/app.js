@@ -76,7 +76,7 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log("🟢 DuckDB OK");
     
     const conn = await db.connect();
-    await conn.query("INSTALL httpfs; LOAD httpfs; SET threads=4;")
+    await conn.query("INSTALL httpfs; LOAD httpfs; SET threads=4;");
 
     // ---------- Helpers ----------
     async function loadRegion(regionSlug){
