@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <title>Observatorio de Accidentes — Chile</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <header class="header">
+    <div class="brand">
+      <div class="logo-circle">A</div>
+      <div>
+        <h1>Observatorio de Accidentes</h1>
+        <p class="subtitle">Consulta por Región, Comuna e Intersección — últimos 5 años</p>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="card">
+      <h2 class="card-title">Búsqueda</h2>
+      <div class="grid grid-2">
+        <div class="field">
+          <label for="region">Región</label>
+          <select id="region"></select>
+        </div>
+        <div class="field">
+          <label for="comuna">Comuna (texto exacto o parcial)</label>
+          <input id="comuna" placeholder="Ej: Santiago / Rancagua / Valparaíso" />
+        </div>
+      </div>
+
+      <div class="grid grid-3">
+        <div class="field">
+          <label for="calleA">Calle A</label>
+          <input id="calleA" placeholder="Ej: Alameda" />
+        </div>
+        <div class="field">
+          <label for="calleB">Calle B</label>
+          <input id="calleB" placeholder="Ej: Vicuña Mackenna" />
+        </div>
+        <div class="field align-end">
+          <div class="btn-row">
+            <button id="buscar" class="btn btn-primary">Buscar</button>
+            <button id="limpiar" class="btn btn-ghost">Limpiar</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <div class="pager">
+          <span class="muted">Página</span>
+          <button id="prev" class="btn btn-icon" title="Anterior">⟵</button>
+          <input id="page" type="number" min="1" value="1" />
+          <button id="next" class="btn btn-icon" title="Siguiente">⟶</button>
+        </div>
+        <div class="spacer"></div>
+        <div class="status" id="status">Listo</div>
+      </div>
+
+      <div class="table-wrap">
+        <table id="tbl">
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Hora</th>
+              <th>Región</th>
+              <th>Comuna</th>
+              <th>Calleuno</th>
+              <th>Calledos</th>
+              <th>Urbano/Rural</th>
+              <th>Fallecidos</th>
+              <th>Graves</th>
+              <th>M/Grave</th>
+              <th>Leves</th>
+              <th>Ilesos</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div>© 2025 Observatorio de Accidentes — Demo</div>
+    <div class="muted">Datos particionados por región en formato Parquet. Render en el navegador con DuckDB-Wasm.</div>
+  </footer>
+
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
