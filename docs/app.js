@@ -1,4 +1,3 @@
-// app.js
 
 // 1) Importa SOLO el shim ESM de duckdb-wasm (no importes .wasm ni worker)
 import * as duckdb from "https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm@1.30.0/+esm";
