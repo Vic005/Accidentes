@@ -53,33 +53,31 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // ---------- DuckDB-Wasm bootstrap ----------    
     // 1) Catálogo de bundles del CDN
-    const DUCKDB_BASE = "https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm@1.30.0/dist/";
+    const DUCKDB_CDN_BASE = "https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm@1.30.0/dist/";
     const bundle = {
-      // Usar SIEMPRE MVP (no requiere cross-origin isolation)
-      mainModule:   DUCKDB_BASE + "duckdb-mvp.wasm",
-      mainWorker:   DUCKDB_BASE + "duckdb-browser-mvp.worker.js",
-      pthreadWorker: null, // MVP no usa pthreads
+      mainModule:   DUCKDB_CDN_BASE + "duckdb-mvp.wasm",
+      mainWorker:   DUCKDB_CDN_BASE + "duckdb-browser-mvp.worker.js",
+      pthreadWorker: null,
     };
     
-    // El worker **debe** ser tipo módulo
-    const worker = new Worker(bundle.mainWorker, { type: "module" });
-    worker.addEventListener("error", e => {
-      console.error("❌ Worker error:", e);
-      console.error("Worker URL:", bundle.mainWorker);
-    });
+    // ⚠️ Truco anti-CORS de Module Worker:
+    // 1) Descargamos el código del worker desde el CDN
+    // 2) Creamos un Blob URL del script y lo usamos como mismo origen
+    const workerSrc = await fetch(bundle.mainWorker).then(r => r.text());
+    const workerBlobUrl = URL.createObjectURL(new Blob([workerSrc], { type: "text/javascript" }));
+    
+    // Ahora sí: Worker del “mismo origen” (pero ejecuta el código del CDN)
+    const worker = new Worker(workerBlobUrl, { type: "module" });
     
     const logger = new duckdb.ConsoleLogger();
     const db     = new duckdb.AsyncDuckDB(logger, worker);
     
-    console.log("🟡 Instanciando DuckDB (MVP)…", bundle);
+    console.log("🟡 Instanciando DuckDB (MVP desde CDN)…", bundle);
     await db.instantiate(bundle.mainModule, bundle.pthreadWorker);
     console.log("🟢 DuckDB OK");
     
     const conn = await db.connect();
     await conn.query("INSTALL httpfs; LOAD httpfs; SET threads=4;");
-    // (ping opcional)
-    const ping = await conn.query("SELECT 1 AS ok;");
-    console.log("Ping DB:", ping.toArray());
 
     // ---------- Helpers ----------
     async function loadRegion(regionSlug){
