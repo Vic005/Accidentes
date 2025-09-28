@@ -46,28 +46,23 @@ document.addEventListener("DOMContentLoaded", () => {
     // ---------- DuckDB-Wasm (MVP: worker local + wasm CDN) ----------
     const DUCKDB_CDN_BASE = "https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm@1.30.0/dist/";
     const bundle = {
-      mainModule:   DUCKDB_CDN_BASE + "duckdb-mvp.wasm",           // wasm por CDN (comprimido)
-      mainWorker:   "./duckdb/duckdb-browser-mvp.worker.js",       // worker MISMO ORIGEN
-      pthreadWorker: null,
+      mainModule: DUCKDB_CDN_BASE + "duckdb-mvp.wasm",
+      // sin worker, sin pthreads
     };
-
-    // Module Worker de mismo origen
-    const worker = new Worker(bundle.mainWorker, { type: "module" });
-    worker.addEventListener("error", (e) => {
-      console.error("❌ Worker error:", e);
-      console.error("Worker URL:", bundle.mainWorker);
-    });
-
+    
     const logger = new duckdb.ConsoleLogger();
-    const db     = new duckdb.AsyncDuckDB(logger, worker);
+    // ⬇️ Usamos la API SÍNCRONA (NO AsyncDuckDB, NO Worker)
+    const db = new duckdb.DuckDB(logger);
+    
+    console.log("🟡 Instanciando DuckDB (SYNC, sin worker)…", bundle);
+    await db.instantiate(bundle.mainModule /*, pthreadWorker = null */);
+    console.log("🟢 DuckDB OK (sync)");
+    console.log("Cargando región:", regionSlug, "→", path);
 
-    console.log("🟡 Instanciando DuckDB (MVP, local worker)…", bundle);
-    await db.instantiate(bundle.mainModule, bundle.pthreadWorker);
-    console.log("🟢 DuckDB OK");
-
+    
     const conn = await db.connect();
     await conn.query("INSTALL httpfs; LOAD httpfs; SET threads=4;");
-
+    
     // “sellos de vida” (diagnóstico)
     try {
       const v = await conn.query("select current_setting('duckdb_version') as v;");
@@ -77,7 +72,6 @@ document.addEventListener("DOMContentLoaded", () => {
     } catch (e) {
       console.error("Fallo en verificación inicial:", e);
     }
-
     // ---------- Helpers ----------
     async function loadRegion(regionSlug){
       const path = `data/region=${regionSlug}/part-*.parquet`;
