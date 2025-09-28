@@ -44,34 +44,39 @@ document.addEventListener("DOMContentLoaded", () => {
     const LIMIT = 100;
 
     // ---------- DuckDB-Wasm (MVP: worker local + wasm CDN) ----------
-    const DUCKDB_CDN_BASE = "https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm@1.30.0/dist/";
-    const bundle = {
-      mainModule: DUCKDB_CDN_BASE + "duckdb-mvp.wasm",
-      // sin worker, sin pthreads
-    };
-    
-    const logger = new duckdb.ConsoleLogger();
-    // ⬇️ Usamos la API SÍNCRONA (NO AsyncDuckDB, NO Worker)
-    const db = new duckdb.DuckDB(logger);
-    
-    console.log("🟡 Instanciando DuckDB (SYNC, sin worker)…", bundle);
-    await db.instantiate(bundle.mainModule /*, pthreadWorker = null */);
-    console.log("🟢 DuckDB OK (sync)");
-    console.log("Cargando región:", regionSlug, "→", path);
+    console.log("🔧 Inicializando DuckDB-Wasm…");
 
+    // 1) Catálogo de bundles del CDN
+    const JSDELIVR = duckdb.getJsDelivrBundles();
     
+    // 2) Selecciona el bundle (forzamos MVP si quieres)
+    const bundle = await duckdb.selectBundle(JSDELIVR, { preferMvp: true });
+    
+    // 3) Crea un Worker **clásico** desde un Blob, cuyo código hace importScripts del worker del CDN
+    //    (Esto evita las restricciones de Module Worker cross-origin)
+    const worker_url = URL.createObjectURL(
+      new Blob([`importScripts("${bundle.mainWorker}");`], { type: "text/javascript" })
+    );
+    const worker = new Worker(worker_url);       // << clásico, SIN { type: 'module' }
+    
+    // 4) Instancia AsyncDuckDB con logger y worker clásico
+    const logger = new duckdb.ConsoleLogger();
+    const db     = new duckdb.AsyncDuckDB(logger, worker);
+    
+    console.log("🟡 Instanciando DuckDB…", bundle);
+    await db.instantiate(bundle.mainModule, bundle.pthreadWorker);
+    console.log("🟢 DuckDB OK");
+    
+    // 5) Conexión + HTTPFS
     const conn = await db.connect();
     await conn.query("INSTALL httpfs; LOAD httpfs; SET threads=4;");
     
-    // “sellos de vida” (diagnóstico)
-    try {
-      const v = await conn.query("select current_setting('duckdb_version') as v;");
-      console.log("DuckDB version:", v.toArray());
-      const smoke = await conn.query("SELECT 42 AS prueba");
-      console.log("Smoke test:", smoke.toArray());
-    } catch (e) {
-      console.error("Fallo en verificación inicial:", e);
-    }
+    // (diagnóstico opcional)
+    const v = await conn.query("select current_setting('duckdb_version') as v;");
+    console.log("DuckDB version:", v.toArray());
+    
+    // Limpieza del blob (opcional)
+    URL.revokeObjectURL(worker_url);
     // ---------- Helpers ----------
     async function loadRegion(regionSlug){
       const path = `data/region=${regionSlug}/part-*.parquet`;
