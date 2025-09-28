@@ -1,6 +1,4 @@
 
-// 1) Importa SOLO el shim ESM de duckdb-wasm (no importes .wasm ni worker)
-import * as duckdb from "https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm@1.30.0/+esm";
 
 // 2) Espera el DOM antes de tocar elementos
 document.addEventListener("DOMContentLoaded", () => {
@@ -52,31 +50,33 @@ document.addEventListener("DOMContentLoaded", () => {
     const LIMIT = 100;
 
     // ---------- DuckDB-Wasm bootstrap ----------    
-    // 1) Catálogo de bundles del CDN
+    // 1) Import ESM (ligero, desde CDN)
+    import * as duckdb from "https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm@1.30.0/+esm";
+    
+    // 2) Bundle forzado MVP (más compatible)
     const DUCKDB_CDN_BASE = "https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm@1.30.0/dist/";
     const bundle = {
-      mainModule:   DUCKDB_CDN_BASE + "duckdb-mvp.wasm",
-      mainWorker:   DUCKDB_CDN_BASE + "duckdb-browser-mvp.worker.js",
+      mainModule:   DUCKDB_CDN_BASE + "duckdb-mvp.wasm",                 // wasm desde CDN (ok)
+      mainWorker:   "./duckdb/duckdb-browser-mvp.worker.js",             // ← MISMO ORIGEN
       pthreadWorker: null,
     };
     
-    // Descargamos el código del worker y lo levantamos como **classic worker** desde un Blob (mismo origen)
-    const workerSrc    = await fetch(bundle.mainWorker).then(r => r.text());
-    const workerBlob   = new Blob([workerSrc], { type: "text/javascript" });
-    const workerBlobUrl= URL.createObjectURL(workerBlob);
-    
-    // ⬅️ classic worker (sin type:"module")
-    const worker = new Worker(workerBlobUrl);
+    // 3) Module Worker de mismo origen (clave)
+    const worker = new Worker(bundle.mainWorker, { type: "module" });
     
     const logger = new duckdb.ConsoleLogger();
     const db     = new duckdb.AsyncDuckDB(logger, worker);
     
-    console.log("🟡 Instanciando DuckDB (MVP desde CDN)…", bundle);
+    console.log("🟡 Instanciando DuckDB (MVP, local worker)…", bundle);
     await db.instantiate(bundle.mainModule, bundle.pthreadWorker);
     console.log("🟢 DuckDB OK");
     
     const conn = await db.connect();
     await conn.query("INSTALL httpfs; LOAD httpfs; SET threads=4;");
+    const v = await conn.query("select current_setting('duckdb_version') as v;");
+    console.log("DuckDB version:", v.toArray());
+
+
 
     // ---------- Helpers ----------
     async function loadRegion(regionSlug){
