@@ -3,8 +3,8 @@
   --card:#fff;
   --text:#1c2430;
   --muted:#6b7280;
-  --brand:#1f4ed8;
-  --brand-700:#1639a6;
+  --brand:#FFFFFF;
+  --brand-700:#FFFFFF;
   --line:#FFFFFF;
   --accent:#0ea5e9;
 }
@@ -23,7 +23,7 @@ body{
   display:grid; place-items:center; color:white; font-weight:700;
 }
 h1{font-size:18px; margin:0}
-.subtitle{margin:2px 0 0; color:#cbd5e1; font-size:12px}
+.subtitle{margin:2px 0 0; color:#FFFFFF; font-size:12px}
 
 .container{max-width:1300px; margin:24px auto; padding:0 16px}
 .card{
