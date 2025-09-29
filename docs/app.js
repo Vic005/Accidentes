@@ -143,7 +143,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const frag = document.createDocumentFragment();
       pageRows.forEach(r => {
         const tr = document.createElement('tr');
-        ["Fecha","Hora","Región","Comuna","Calleuno","Calledos","Urbano/Rural","Fallecidos","Graves","M/Grave","Leves","Ilesos"]
+        ["Fecha","Región","Comuna","Calleuno","Calledos","Urbano/Rural","Fallecidos","Graves","M/Grave","Leves","Ilesos"]
           .forEach(k => {
             const td = document.createElement('td');
             td.textContent = r[k] == null ? '' : String(r[k]);
