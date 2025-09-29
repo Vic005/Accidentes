@@ -1,5 +1,5 @@
 // app.js  —  ✅ IMPORT EN TOP-LEVEL
-import * as duckdb from "https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm@1.30.0/+esm";
+import * as duckdb from "https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm@1.29.0/+esm";
 
 // Espera el DOM antes de tocar elementos
 document.addEventListener("DOMContentLoaded", () => {
@@ -47,7 +47,7 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log("🔧 Inicializando DuckDB-Wasm…");
     
     // 1) Fijamos MVP (evita que elija EH)
-    const DUCKDB_CDN = "https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm@1.30.0/dist/";
+    const DUCKDB_CDN = "https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm@1.29.0/dist/";
     const bundle = {
       mainModule:    DUCKDB_CDN + "duckdb-mvp.wasm",
       mainWorkerUrl: DUCKDB_CDN + "duckdb-browser-mvp.worker.js",
