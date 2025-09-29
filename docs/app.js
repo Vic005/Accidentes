@@ -45,40 +45,47 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // ---------- DuckDB-Wasm (MVP: worker local + wasm CDN) ----------
     console.log("🔧 Inicializando DuckDB-Wasm…");
-
-    // 1) Forzar MVP (sin autodetección; evita que tome EH)
+    
+    // 1) Fijamos MVP (evita que elija EH)
     const DUCKDB_CDN = "https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm@1.30.0/dist/";
     const bundle = {
-      mainModule:   DUCKDB_CDN + "duckdb-mvp.wasm",
-      mainWorker:   DUCKDB_CDN + "duckdb-browser-mvp.worker.js",
+      mainModule:    DUCKDB_CDN + "duckdb-mvp.wasm",
+      mainWorkerUrl: DUCKDB_CDN + "duckdb-browser-mvp.worker.js",
       pthreadWorker: null
     };
     
-    // 2) Worker clásico por Blob + importScripts (mismo origen lógico)
-    const workerURL = URL.createObjectURL(
-      new Blob([`importScripts("${bundle.mainWorker}");`], { type: "text/javascript" })
-    );
-    const worker = new Worker(workerURL); // <- clásico, SIN { type:"module" }
+    // 2) Creamos un *classic worker* desde un Blob con shims para Emscripten
+    const workerScript = `
+      // Shims mínimos que algunos builds de Emscripten esperan
+      self.window = self;
+      try { var globalThis = self; } catch(e) {}
+      // Carga el worker real desde el CDN
+      importScripts("${bundle.mainWorkerUrl}");
+    `;
     
+    const workerURL = URL.createObjectURL(new Blob([workerScript], { type: "text/javascript" }));
+    const worker    = new Worker(workerURL); // 👈 classic worker (SIN { type:"module" })
+    
+    // 3) Instanciamos AsyncDuckDB con ese worker
     const logger = new duckdb.ConsoleLogger();
     const db     = new duckdb.AsyncDuckDB(logger, worker);
     
-    console.log("🟡 Instanciando DuckDB…", bundle);
+    console.log("🟡 Instanciando DuckDB…", { mainModule: bundle.mainModule, mainWorker: bundle.mainWorkerUrl });
     await db.instantiate(bundle.mainModule, bundle.pthreadWorker);
     console.log("🟢 DuckDB OK");
     
-    // 3) Conexión + HTTPFS (⚠️ sin SET threads)
+    // 4) Conexión + HTTPFS (⚠️ sin SET threads)
     const conn = await db.connect();
     await conn.query("INSTALL httpfs; LOAD httpfs;");
-    // (opcional) fuerza 1 hilo si quieres ser explícita:
-    // await conn.query("SET threads=1;");
+    // Si quieres ser explícita: await conn.query("SET threads=1;");
     
-    // Diagnóstico
+    // Diagnóstico opcional
     const v = await conn.query("select current_setting('duckdb_version') as v;");
     console.log("DuckDB version:", v.toArray());
     
-    // Limpieza del Blob
+    // Limpieza del Blob (opcional)
     URL.revokeObjectURL(workerURL);
+
 
 
     
