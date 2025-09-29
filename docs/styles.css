@@ -5,7 +5,7 @@
   --muted:#6b7280;
   --brand:#1f4ed8;
   --brand-700:#1639a6;
-  --line:#e5e7eb;
+  --line:#FFFFFF;
   --accent:#0ea5e9;
 }
 *{box-sizing:border-box}
@@ -15,7 +15,7 @@ body{
   color:var(--text); background:var(--bg);
 }
 .header{
-  background:#F4A600; color:#e5e7eb; padding:16px 24px; border-bottom:1px solid #F4A600;
+  background:#F4A600; color:#FFFFFF; padding:16px 24px; border-bottom:1px solid #F4A600;
 }
 .brand{display:flex; gap:12px; align-items:center}
 .logo-circle{
