@@ -25,7 +25,7 @@ body{
 h1{font-size:18px; margin:0}
 .subtitle{margin:2px 0 0; color:#cbd5e1; font-size:12px}
 
-.container{max-width:1200px; margin:24px auto; padding:0 16px}
+.container{max-width:1300px; margin:24px auto; padding:0 16px}
 .card{
   background:var(--card); border:1px solid var(--line); border-radius:14px; padding:16px 16px 8px;
   box-shadow:0 6px 18px rgba(2,6,23,0.06);
