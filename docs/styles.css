@@ -4,7 +4,7 @@
   --text:#1c2430;
   --muted:#6b7280;
   --brand:#FFFFFF;
-  --brand-700:#FFFFFF;
+  --brand-700:#F4A600;
   --line:#FFFFFF;
   --accent:#0ea5e9;
 }
@@ -17,11 +17,7 @@ body{
 .header{
   background:#F4A600; color:#FFFFFF; padding:16px 24px; border-bottom:1px solid #F4A600;
 }
-.brand{display:flex; gap:12px; align-items:center}
-.logo-circle{
-  width:40px; height:40px; border-radius:50%; background:linear-gradient(135deg,#F4A600,#F4A600);
-  display:grid; place-items:center; color:white; font-weight:700;
-}
+.brand{display:flex; gap:12px; color:#FFFFFF; align-items:center}
 h1{font-size:18px; margin:0}
 .subtitle{margin:2px 0 0; color:#FFFFFF; font-size:12px}
 
