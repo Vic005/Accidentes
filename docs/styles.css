@@ -19,7 +19,7 @@ body{
 }
 .brand{display:flex; gap:12px; align-items:center}
 .logo-circle{
-  width:40px; height:40px; border-radius:50%; background:linear-gradient(135deg,#22d3ee,#2563eb);
+  width:40px; height:40px; border-radius:50%; background:linear-gradient(135deg,#F4A600,#F4A600);
   display:grid; place-items:center; color:white; font-weight:700;
 }
 h1{font-size:18px; margin:0}
