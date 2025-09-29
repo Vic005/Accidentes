@@ -14,7 +14,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const REGIONES = [
       ["region-metropolitana-de-santiago","Región Metropolitana de Santiago"],
       ["valparaiso","Valparaíso"],
-      ["libertador-general-bernardo-o-higgins","Libertador General Bernardo O’Higgins"],
+      ["libertador-general-bernardo-ohiggins","Libertador General Bernardo O’Higgins"],
       ["maule","Maule"],["nuble","Ñuble"],["biobio","Biobío"],["la-araucania","La Araucanía"],
       ["los-rios","Los Ríos"],["los-lagos","Los Lagos"],
       ["aysen-del-general-carlos-ibanez-del-campo","Aysén del General Carlos Ibáñez del Campo"],
