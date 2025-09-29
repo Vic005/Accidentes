@@ -46,20 +46,20 @@ document.addEventListener("DOMContentLoaded", () => {
     // ---------- DuckDB-Wasm (MVP: worker local + wasm CDN) ----------
     console.log("🔧 Inicializando DuckDB-Wasm…");
 
-    // 1) Catálogo de bundles del CDN
-    const JSDELIVR = duckdb.getJsDelivrBundles();
+    // 1) Forzar MVP (sin autodetección; evita que tome EH)
+    const DUCKDB_CDN = "https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm@1.30.0/dist/";
+    const bundle = {
+      mainModule:   DUCKDB_CDN + "duckdb-mvp.wasm",
+      mainWorker:   DUCKDB_CDN + "duckdb-browser-mvp.worker.js",
+      pthreadWorker: null
+    };
     
-    // 2) Selecciona el bundle (forzamos MVP si quieres)
-    const bundle = await duckdb.selectBundle(JSDELIVR, { preferMvp: true });
-    
-    // 3) Crea un Worker **clásico** desde un Blob, cuyo código hace importScripts del worker del CDN
-    //    (Esto evita las restricciones de Module Worker cross-origin)
-    const worker_url = URL.createObjectURL(
+    // 2) Worker clásico por Blob + importScripts (mismo origen lógico)
+    const workerURL = URL.createObjectURL(
       new Blob([`importScripts("${bundle.mainWorker}");`], { type: "text/javascript" })
     );
-    const worker = new Worker(worker_url);       // << clásico, SIN { type: 'module' }
+    const worker = new Worker(workerURL); // <- clásico, SIN { type:"module" }
     
-    // 4) Instancia AsyncDuckDB con logger y worker clásico
     const logger = new duckdb.ConsoleLogger();
     const db     = new duckdb.AsyncDuckDB(logger, worker);
     
@@ -67,16 +67,21 @@ document.addEventListener("DOMContentLoaded", () => {
     await db.instantiate(bundle.mainModule, bundle.pthreadWorker);
     console.log("🟢 DuckDB OK");
     
-    // 5) Conexión + HTTPFS
+    // 3) Conexión + HTTPFS (⚠️ sin SET threads)
     const conn = await db.connect();
-    await conn.query("INSTALL httpfs; LOAD httpfs; SET threads=4;");
+    await conn.query("INSTALL httpfs; LOAD httpfs;");
+    // (opcional) fuerza 1 hilo si quieres ser explícita:
+    // await conn.query("SET threads=1;");
     
-    // (diagnóstico opcional)
+    // Diagnóstico
     const v = await conn.query("select current_setting('duckdb_version') as v;");
     console.log("DuckDB version:", v.toArray());
     
-    // Limpieza del blob (opcional)
-    URL.revokeObjectURL(worker_url);
+    // Limpieza del Blob
+    URL.revokeObjectURL(workerURL);
+
+
+    
     // ---------- Helpers ----------
     async function loadRegion(regionSlug){
       const path = `data/region=${regionSlug}/part-*.parquet`;
