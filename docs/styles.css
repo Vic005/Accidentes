@@ -39,7 +39,7 @@ h1{font-size:18px; margin:0}
 }
 .field input:focus, .field select:focus{border-color:var(--accent); box-shadow:0 0 0 3px rgba(14,165,233,.15)}
 .align-end{display:flex; align-items:end}
-.btn-row{display:flex; gap:8px}
+.btn-row{display:flex; gap:8px; background:var(--brand); color:#fff; border-color:var(--brand)}
 .btn{padding:10px 14px; border-radius:10px; border:1px solid var(--line); background:#fff; cursor:pointer}
 .btn:hover{background:#f9fafb}
 .btn-primary{background:var(--brand); color:#fff; border-color:var(--brand)}
