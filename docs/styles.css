@@ -15,11 +15,11 @@ body{
   color:var(--text); background:var(--bg);
 }
 .header{
-  background:#F4A600; color:#FFFFFF; padding:16px 24px; border-bottom:1px solid #F4A600;
+  background:#F4A600; color:#FFFFFF; padding:20px 26px; border-bottom:1px solid #F4A600;
 }
-.brand{display:flex; gap:12px; color:#FFFFFF; align-items:center}
-h1{font-size:18px; margin:0}
-.subtitle{margin:2px 0 0; color:#FFFFFF; font-size:12px}
+.brand{display:flex; gap:20px; color:#FFFFFF; align-items:center}
+h1{font-size:20px; margin:0}
+.subtitle{margin:2px 0 0; color:#FFFFFF; font-size:18px}
 
 .container{max-width:1300px; margin:24px auto; padding:0 16px}
 .card{
@@ -39,7 +39,7 @@ h1{font-size:18px; margin:0}
 }
 .field input:focus, .field select:focus{border-color:var(--accent); box-shadow:0 0 0 3px rgba(14,165,233,.15)}
 .align-end{display:flex; align-items:end}
-.btn-row{display:flex; gap:8px; background:var(--brand); color:#fff; border-color:var(--brand)}
+.btn-row{display:flex; gap:8px}
 .btn{padding:10px 14px; border-radius:10px; border:1px solid var(--line); background:#fff; cursor:pointer}
 .btn:hover{background:#f9fafb}
 .btn-primary{background:var(--brand); color:#fff; border-color:var(--brand)}
