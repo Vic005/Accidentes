@@ -36,7 +36,6 @@ document.addEventListener("DOMContentLoaded", () => {
       filters: {},      // {col: value/string/expr}
       columns: [
         {key:"Fecha", label:"Fecha", type:"text"},
-        {key:"Hora", label:"Hora", type:"text"},
         {key:"Región", label:"Región", type:"cat"},
         {key:"Comuna", label:"Comuna", type:"cat"},
         {key:"Calleuno", label:"Calle 1", type:"text"},
@@ -44,6 +43,7 @@ document.addEventListener("DOMContentLoaded", () => {
         {key:"Urbano/Rural", label:"Urbano/Rural", type:"cat"},
         {key:"Siniestros", label:"Siniestros", type:"cat"},
         {key:"Causas", label:"Causas", type:"cat"},
+        {key:"Ubicación/km", label:"Ubicación/km", type:"text"},
         {key:"Fallecidos", label:"Fallecidos", type:"num"},
         {key:"Graves", label:"Graves", type:"num"},
         {key:"M/Grave", label:"M/Grave", type:"num"},
