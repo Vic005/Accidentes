@@ -200,7 +200,7 @@ document.addEventListener("DOMContentLoaded", () => {
         } else {
           el = document.createElement('input');
           el.type = 'text';
-          el.placeholder = (c.type === 'num') ? 'e.g. >=1' : 'contiene…';
+          el.placeholder = (c.type === 'num') ? 'e.j. >=1' : 'contiene…';
         }
         el.dataset.col = c.key;
         el.addEventListener('input', onFilterChange);
