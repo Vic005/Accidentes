@@ -285,20 +285,24 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // ---------- export ----------
-    function toCSV(rows){
+    function toCSV(rows, delimiter=';'){
       const cols = state.columns.map(c => c.key);
-      const escape = (s) => {
+      const esc = (s) => {
         const v = s==null ? '' : String(s);
-        if (/[",\n]/.test(v)) return `"${v.replace(/"/g,'""')}"`;
+        // si contiene comillas, saltos de línea o el delimitador → entrecomillar y duplicar comillas
+        if (v.includes('"') || v.includes('\n') || v.includes(delimiter)) {
+          return `"${v.replace(/"/g,'""')}"`;
+        }
         return v;
       };
-      const head = cols.join(',');
-      const body = rows.map(r => cols.map(k => escape(r[k])).join(',')).join('\n');
+      const head = cols.join(delimiter);
+      const body = rows.map(r => cols.map(k => esc(r[k])).join(delimiter)).join('\n');
       return head + '\n' + body;
     }
-
+    
     function download(filename, text){
-      const blob = new Blob([text], {type:'text/csv;charset=utf-8;'});
+      const BOM = '\uFEFF'; // <- hace que Excel lea UTF-8 correctamente
+      const blob = new Blob([BOM + text], {type:'text/csv;charset=utf-8;'});
       const url  = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url; a.download = filename;
